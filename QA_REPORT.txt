@@ -1,0 +1,24 @@
+QA REPORT — POS & INVENTARIS TOKO BANGUNAN
+
+PASS  app/ identical to source archive
+PASS  config/ identical to source archive
+PASS  database/ identical to source archive
+PASS  routes/ identical to source archive
+PASS  controller/model/migration SHA-256 unchanged
+PASS  PHP syntax lint for app/config/routes
+PASS  source JavaScript syntax (node --check)
+PASS  built JavaScript syntax (node --check)
+PASS  source CSS parse (tinycss2)
+PASS  built CSS parse (tinycss2)
+PASS  Blade directive/component structural balance
+PASS  12 module page-header coverage
+PASS  11 reusable UI components present
+PASS  no active external font/CSS/JS CDN references
+PASS  ApexCharts CDN removed and replaced with native SVG chart
+PASS  Light/Dark localStorage + OS preference markers present
+
+LIMITATION
+The uploaded archive is partial and does not contain composer.json, package.json,
+artisan, bootstrap/app.php, vendor/, node_modules/, or complete Vite build files.
+Laravel runtime, npm build, browser E2E, physical printer, and NativePHP/Electron
+runtime testing must be run in the complete project after applying the package.
