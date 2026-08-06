@@ -446,10 +446,19 @@ public function printInvoiceEscp(
                 $product = $products->get($code);
                 $oldRows = $existingByCode->get($code, collect());
 
-                $oldQty = (float) $oldRows->sum('qty');
+                $oldQty       = (float) $oldRows->sum('qty');
                 $oldDelivered = (float) $oldRows->sum('qty_terkirim');
-                $newQty = (float) ($requestedItems[$code]['qty'] ?? 0);
-                $newDelivered = (float) ($requestedItems[$code]['qty_terkirim'] ?? 0);
+                $newQty       = (float) ($requestedItems[$code]['qty'] ?? 0);
+                $rawDelivered = $requestedItems[$code]['qty_terkirim'] ?? null;
+
+                // Pertahankan qty_terkirim yang sudah ada jika input bernilai 0/empty tetapi sebelumnya sudah terkirim
+                if ($rawDelivered === null || ((float) $rawDelivered <= 0 && $oldDelivered > 0)) {
+                    $newDelivered = $oldDelivered;
+                } else {
+                    $newDelivered = (float) $rawDelivered;
+                }
+
+                $newDelivered = min($newQty, max(0, $newDelivered));
 
                 if ($newQty > 0 && $newDelivered > $newQty) {
                     throw ValidationException::withMessages([
@@ -545,27 +554,37 @@ public function printInvoiceEscp(
             $effectiveMetode = $updateData['metode_bayar'] ?? $order->metode_bayar;
 
             if (Schema::hasColumn('tbl_penjualan', 'sisa_piutang')) {
-                // Hitung total cicilan yang sudah pernah dibayar dari tabel receivable_payments
+                // Hitung total cicilan yang sudah pernah dibayar.
+                // Jika sebelumnya transaksi adalah CASH dan diubah ke TEMPO, cicilan awal = 0 (hutang utuh sebesar newTotal).
                 $totalSudahDibayar = 0;
-                if (Schema::hasTable('tbl_receivable_payments')) {
-                    $totalSudahDibayar = (int) DB::table('tbl_receivable_payments')
-                        ->where('penjualan_id', $order->id)
-                        ->sum('nominal');
-                } else {
-                    // Fallback: hitung dari selisih total lama - sisa lama
-                    $oldTotal      = (int) $order->total_belanja;
-                    $oldReceivable = (int) $order->sisa_piutang;
-                    $totalSudahDibayar = max(0, $oldTotal - $oldReceivable);
+
+                if ($order->metode_bayar === 'TEMPO') {
+                    if (Schema::hasTable('tbl_receivable_payments')) {
+                        $totalSudahDibayar = (int) DB::table('tbl_receivable_payments')
+                            ->where('penjualan_id', $order->id)
+                            ->sum('nominal');
+                    } else {
+                        // Fallback: hitung dari selisih total lama - sisa lama
+                        $oldTotal      = (int) $order->total_belanja;
+                        $oldReceivable = (int) $order->sisa_piutang;
+                        $totalSudahDibayar = max(0, $oldTotal - $oldReceivable);
+                    }
                 }
 
                 if ($effectiveMetode === 'TEMPO') {
                     $newReceivable = max(0, $newTotal - $totalSudahDibayar);
                     $updateData['sisa_piutang'] = $newReceivable;
-                    $updateData['status'] = $newReceivable > 0 ? 'Tempo' : 'Lunas';
+                    $updateData['status']       = $newReceivable > 0 ? 'Tempo' : 'Lunas';
                 } else {
-                    // CASH: lunaskan piutang (cicilan yang sudah masuk tetap terecord sebagai histori)
+                    // CASH: lunaskan piutang dan hapus histori cicilannya
                     $updateData['sisa_piutang'] = 0;
-                    $updateData['status'] = 'Lunas';
+                    $updateData['status']       = 'Lunas';
+
+                    if (Schema::hasTable('tbl_receivable_payments')) {
+                        DB::table('tbl_receivable_payments')
+                            ->where('penjualan_id', $order->id)
+                            ->delete();
+                    }
                 }
             } else {
                 // Kolom sisa_piutang tidak ada — update status saja
@@ -1332,7 +1351,7 @@ public function printInvoiceEscp(
                     'penjualan_id' => $order->id,
                     'kode_barang' => $item['kode_barang'],
                     'qty' => $item['qty'],
-                    'qty_terkirim' => 0,
+                    'qty_terkirim' => $metodeBayar === 'CASH' ? $item['qty'] : 0,
                     'harga_jual' => $item['harga_jual'],
                     'subtotal' => $item['subtotal'],
                     'created_at' => $now,

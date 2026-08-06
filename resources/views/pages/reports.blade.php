@@ -236,6 +236,7 @@
                         <th class="px-4 py-3">Tanggal</th>
                         <th class="px-4 py-3">Pelanggan</th>
                         <th class="px-4 py-3 text-center">Segmen</th>
+                        <th class="px-4 py-3">Sales</th>
                         <th class="px-4 py-3 text-center">Metode & Status</th>
                         <th class="px-4 py-3 text-right">Total Penjualan</th>
                         <th class="px-4 py-3 text-right">Total Modal Jual</th>
@@ -260,6 +261,14 @@
                             <td class="px-4 py-3.5 font-semibold text-on-surface">{{ $item->nama_pelanggan }}</td>
                             <td class="px-4 py-3.5 text-center">
                                 <span class="inline-flex rounded-md bg-surface-container-high px-2 py-0.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{{ $item->tipe_pelanggan }}</span>
+                            </td>
+                            <td class="px-4 py-3.5 text-on-surface">
+                                @if(!empty($item->sales_id) || ($item->nama_sales ?? '-') !== '-')
+                                    <span class="font-bold text-primary font-mono">#{{ $item->sales_id ?? '-' }}</span>
+                                    <span class="text-on-surface-variant text-[11px] block font-medium">{{ $item->nama_sales ?? '-' }}</span>
+                                @else
+                                    <span class="text-on-surface-variant font-medium opacity-70">-</span>
+                                @endif
                             </td>
                             <td class="px-4 py-3.5 text-center">
                                 <span class="inline-flex rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider {{ $item->metode_bayar === 'CASH' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
@@ -290,7 +299,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-12 text-center text-on-surface-variant">
+                            <td colspan="10" class="px-4 py-12 text-center text-on-surface-variant">
                                 <div class="flex flex-col items-center gap-1.5 opacity-60">
                                     <span class="material-symbols-outlined text-3xl">analytics</span>
                                     <p class="text-xs font-medium">Tidak ada data transaksi yang sesuai dengan filter laporan.</p>
@@ -301,7 +310,7 @@
                 </tbody>
                 <tfoot class="bg-surface-container-low/50 font-bold border-t border-outline-variant shadow-[inset_0_1px_0_rgba(0,0,0,0.05)]">
                     <tr class="text-on-surface">
-                        <td colspan="6" class="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">Total Halaman Ini</td>
+                        <td colspan="7" class="px-4 py-3 text-right text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">Total Halaman Ini</td>
                         <td class="px-4 py-3 text-right text-primary font-bold">Rp {{ number_format($sumOmset, 0, ',', '.') }}</td>
                         <td class="px-4 py-3 text-right text-on-surface-variant font-medium">Rp {{ number_format($sumModal, 0, ',', '.') }}</td>
                         <td class="px-4 py-3 text-right text-emerald-600 font-black">Rp {{ number_format($sumLaba, 0, ',', '.') }}</td>

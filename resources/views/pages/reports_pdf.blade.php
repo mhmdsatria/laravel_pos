@@ -159,14 +159,15 @@
         <thead>
             <tr>
                 <th width="4%" class="text-center">No</th>
-                <th width="12%">No. Invoice</th>
-                <th width="14%">Tanggal</th>
+                <th width="11%">No. Invoice</th>
+                <th width="11%">Tanggal</th>
                 <th>Nama Pelanggan</th>
-                <th width="9%" class="text-center">Segmen</th>
-                <th width="14%" class="text-center">Metode & Status</th>
-                <th width="13%" class="text-right">Total Penjualan</th>
-                <th width="12%" class="text-right">Total Modal</th>
-                <th width="13%" class="text-right">Laba Kotor</th>
+                <th width="8%" class="text-center">Segmen</th>
+                <th width="10%">Sales</th>
+                <th width="12%" class="text-center">Metode & Status</th>
+                <th width="12%" class="text-right">Total Penjualan</th>
+                <th width="11%" class="text-right">Total Modal</th>
+                <th width="11%" class="text-right">Laba Kotor</th>
             </tr>
         </thead>
         <tbody>
@@ -187,6 +188,14 @@
                 <td class="font-bold" style="color: #111827;">{{ $item->nama_pelanggan }}</td>
                 <td class="text-center">
                     <span class="badge" style="background: #f3f4f6; color: #4b5563;">{{ $item->tipe_pelanggan }}</span>
+                </td>
+                <td>
+                    @if(!empty($item->sales_id) || ($item->nama_sales ?? '-') !== '-')
+                        <div style="font-weight: 700; font-family: monospace;">#{{ $item->sales_id ?? '-' }}</div>
+                        <div style="font-size: 8px; color: #4b5563;">{{ $item->nama_sales ?? '-' }}</div>
+                    @else
+                        <span style="color: #9ca3af;">-</span>
+                    @endif
                 </td>
                 <td class="text-center">
                     <span class="badge" style="{{ $item->metode_bayar === 'CASH' ? 'background: #d1fae5; color: #065f46;' : 'background: #fef3c7; color: #92400e;' }}">
@@ -213,7 +222,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="9" class="text-center" style="padding: 30px; color: #6b7280;">
+                <td colspan="10" class="text-center" style="padding: 30px; color: #6b7280;">
                     Tidak ada catatan transaksi untuk periode ini.
                 </td>
             </tr>
@@ -221,7 +230,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="6" class="text-right" style="font-size: 9px; color: #374151;">TOTAL HALAMAN</td>
+                <td colspan="7" class="text-right" style="font-size: 9px; color: #374151;">TOTAL HALAMAN</td>
                 <td class="text-right text-primary">Rp {{ number_format($pdfOmset, 0, ',', '.') }}</td>
                 <td class="text-right" style="color: #374151;">Rp {{ number_format($pdfModal, 0, ',', '.') }}</td>
                 <td class="text-right text-emerald">Rp {{ number_format($pdfLaba, 0, ',', '.') }}</td>

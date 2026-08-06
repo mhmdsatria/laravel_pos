@@ -112,10 +112,11 @@ class ReceivablesController extends Controller
                     ->withErrors(['export_excel' => 'Tabel penjualan belum tersedia.']);
             }
 
-            $search = trim((string) $request->query('search', ''));
-            $debts = $this->allDebts($search);
-            $filename = 'Detail_Piutang_' . now()->format('Ymd_His') . '.xls';
-            $html = $this->buildReceivablesExcelHtmlNoXml($debts, $search);
+            $search       = trim((string) $request->query('search', ''));
+            $statusFilter = trim((string) $request->query('status', 'belum_lunas'));
+            $debts        = $this->allDebts($search, $statusFilter);
+            $filename     = 'Detail_Piutang_' . now()->format('Ymd_His') . '.xls';
+            $html         = $this->buildReceivablesExcelHtmlNoXml($debts, $search);
 
             return $this->saveOrDownloadReceivableHtmlExcel(
                 $request,
@@ -143,8 +144,9 @@ class ReceivablesController extends Controller
                     ->withErrors(['export_pdf' => 'Tabel penjualan belum tersedia.']);
             }
 
-            $search = trim((string) $request->query('search', ''));
-            $debts = $this->allDebts($search);
+            $search       = trim((string) $request->query('search', ''));
+            $statusFilter = trim((string) $request->query('status', 'belum_lunas'));
+            $debts        = $this->allDebts($search, $statusFilter);
             $filename = 'Detail_Piutang_' . now()->format('Ymd_His') . '.pdf';
 
             $pdf = Pdf::loadView('pages.receivables_pdf', [
@@ -293,13 +295,15 @@ class ReceivablesController extends Controller
 
     private function debtsQuery(string $search, string $statusFilter = 'belum_lunas')
     {
+        $status = strtolower(trim($statusFilter));
+
         $query = SalesOrder::query()
             ->with(['customer', 'sales', 'receivablePayments'])
-            ->where('metode_bayar', 'TEMPO');
+            ->whereIn('metode_bayar', ['TEMPO', 'tempo', 'Tempo']);
 
-        if ($statusFilter === 'belum_lunas') {
+        if (in_array($status, ['belum_lunas', 'aktif', 'tempo', 'unpaid', ''], true)) {
             $query->where('sisa_piutang', '>', 0);
-        } elseif ($statusFilter === 'lunas') {
+        } elseif (in_array($status, ['lunas', 'paid'], true)) {
             $query->where('sisa_piutang', '<=', 0);
         }
 

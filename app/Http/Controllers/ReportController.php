@@ -126,6 +126,8 @@ class ReportController extends Controller
             'No Struk',
             'Status Order',
             'Waktu Penjualan',
+            'ID Sales',
+            'Nama Sales',
             'Kode Barang',
             'Nama Barang',
             'Satuan',
@@ -172,6 +174,8 @@ class ReportController extends Controller
                 $item->no_invoice,
                 $statusOrder,
                 $item->tgl_transaksi ? Carbon::parse($item->tgl_transaksi)->format('d/m/Y') : '',
+                $item->sales_id ? (int) $item->sales_id : '-',
+                $item->nama_sales ?: '-',
                 $item->kode_barang,
                 $item->nama_barang ?? $item->kode_barang,
                 $item->satuan ?? '',
@@ -204,6 +208,7 @@ class ReportController extends Controller
         $hasQtyTerkirim = Schema::hasColumn('tbl_penjualan_detail', 'qty_terkirim');
         $hasQtyRefund   = Schema::hasColumn('tbl_penjualan_detail', 'qty_refund');
         $hasCustomerId  = Schema::hasColumn('tbl_penjualan', 'customer_id') && Schema::hasTable('tbl_customer');
+        $hasSalesId     = Schema::hasColumn('tbl_penjualan', 'sales_id') && Schema::hasTable('tbl_sales');
         $hasHargaBeli   = Schema::hasColumn('tbl_barang', 'harga_beli_terakhir');
 
         $query = DB::table('tbl_penjualan as p')
@@ -212,6 +217,10 @@ class ReportController extends Controller
 
         if ($hasCustomerId) {
             $query->leftJoin('tbl_customer as c', 'c.id', '=', 'p.customer_id');
+        }
+
+        if ($hasSalesId) {
+            $query->leftJoin('tbl_sales as s', 's.id', '=', 'p.sales_id');
         }
 
         $this->withoutRefundedSales($query, 'p');
@@ -223,6 +232,7 @@ class ReportController extends Controller
             'p.metode_bayar',
             'p.nama_pelanggan',
             'p.tipe_pelanggan',
+            'p.sales_id',
             'd.kode_barang',
             DB::raw($hasQtyRefund
                 ? 'CASE WHEN COALESCE(d.qty,0) > COALESCE(d.qty_refund,0) THEN COALESCE(d.qty,0) - COALESCE(d.qty_refund,0) ELSE 0 END as qty'
@@ -236,6 +246,7 @@ class ReportController extends Controller
             'b.nama_barang',
             'b.satuan',
             DB::raw($hasQtyTerkirim ? 'COALESCE(d.qty_terkirim, 0) as qty_terkirim' : '0 as qty_terkirim'),
+            DB::raw($hasSalesId ? "COALESCE(s.nama_sales, '') as nama_sales" : "'' as nama_sales"),
         ];
 
         if ($hasCustomerId) {
@@ -320,6 +331,7 @@ class ReportController extends Controller
     {
         $hasDetailRefund = Schema::hasColumn('tbl_penjualan_detail', 'qty_refund');
         $hasRefundTotal = Schema::hasColumn('tbl_penjualan', 'refund_total');
+        $hasSalesTable  = Schema::hasTable('tbl_sales');
         $qtyNetExpression = $hasDetailRefund
             ? 'CASE WHEN COALESCE(d.qty, 0) > COALESCE(d.qty_refund, 0) THEN COALESCE(d.qty, 0) - COALESCE(d.qty_refund, 0) ELSE 0 END'
             : 'COALESCE(d.qty, 0)';
@@ -352,6 +364,10 @@ class ReportController extends Controller
             ->leftJoin('tbl_penjualan_detail as d', 'd.penjualan_id', '=', 'p.id')
             ->leftJoin('tbl_barang as b', 'b.kode_barang', '=', 'd.kode_barang');
 
+        if ($hasSalesTable) {
+            $transactions->leftJoin('tbl_sales as s', 's.id', '=', 'p.sales_id');
+        }
+
         $this->withoutRefundedSales($transactions, 'p');
 
         $transactions = $transactions
@@ -364,6 +380,9 @@ class ReportController extends Controller
                 'p.metode_bayar',
                 'p.status',
                 'p.sisa_piutang',
+                'p.sales_id',
+                DB::raw($hasSalesTable ? "COALESCE(s.nama_sales, '-') as nama_sales" : "'-' as nama_sales"),
+                DB::raw($hasSalesTable ? "COALESCE(s.kode_sales, '') as kode_sales" : "'' as kode_sales"),
                 DB::raw($netSalesExpressionWithAlias . ' as total_penjualan'),
                 DB::raw("COALESCE(SUM({$modalExpression}), 0) as total_modal"),
                 DB::raw("({$netSalesExpressionWithAlias} - COALESCE(SUM({$modalExpression}), 0)) as laba_kotor"),
@@ -374,7 +393,20 @@ class ReportController extends Controller
             ->whereBetween(DB::raw('DATE(p.tgl_transaksi)'), [$filters['startDate'], $filters['endDate']])
             ->when($filters['kategoriPelanggan'] !== 'all', fn ($query) => $query->where('p.tipe_pelanggan', strtoupper($filters['kategoriPelanggan'])))
             ->when($filters['metodeBayar'] !== 'all', fn ($query) => $query->where('p.metode_bayar', strtoupper($filters['metodeBayar'])))
-            ->groupBy('p.id', 'p.no_invoice', 'p.tgl_transaksi', 'p.nama_pelanggan', 'p.tipe_pelanggan', 'p.metode_bayar', 'p.status', 'p.sisa_piutang', 'p.total_belanja', 'p.refund_total')
+            ->groupBy(
+                'p.id',
+                'p.no_invoice',
+                'p.tgl_transaksi',
+                'p.nama_pelanggan',
+                'p.tipe_pelanggan',
+                'p.metode_bayar',
+                'p.status',
+                'p.sisa_piutang',
+                'p.total_belanja',
+                'p.refund_total',
+                'p.sales_id',
+                ...($hasSalesTable ? ['s.nama_sales', 's.kode_sales'] : [])
+            )
             ->orderByDesc('p.tgl_transaksi')
             ->orderByDesc('p.id')
             ->get();
@@ -409,6 +441,8 @@ class ReportController extends Controller
             'No Struk',
             'Status Order',
             'Waktu Penjualan',
+            'ID Sales',
+            'Nama Sales',
             'Kode Barang',
             'Nama Barang',
             'Satuan',
@@ -429,7 +463,8 @@ class ReportController extends Controller
         }
 
         $hasQtyTerkirim = Schema::hasColumn('tbl_penjualan_detail', 'qty_terkirim');
-        $hasCustomerId = Schema::hasColumn('tbl_penjualan', 'customer_id') && Schema::hasTable('tbl_customer');
+        $hasCustomerId  = Schema::hasColumn('tbl_penjualan', 'customer_id') && Schema::hasTable('tbl_customer');
+        $hasSalesId     = Schema::hasColumn('tbl_penjualan', 'sales_id') && Schema::hasTable('tbl_sales');
 
         $query = DB::table('tbl_penjualan as p')
             ->join('tbl_penjualan_detail as d', 'd.penjualan_id', '=', 'p.id')
@@ -437,6 +472,10 @@ class ReportController extends Controller
 
         if ($hasCustomerId) {
             $query->leftJoin('tbl_customer as c', 'c.id', '=', 'p.customer_id');
+        }
+
+        if ($hasSalesId) {
+            $query->leftJoin('tbl_sales as s', 's.id', '=', 'p.sales_id');
         }
 
         $this->withoutRefundedSales($query, 'p');
@@ -450,6 +489,7 @@ class ReportController extends Controller
             'p.metode_bayar',
             'p.nama_pelanggan',
             'p.tipe_pelanggan',
+            'p.sales_id',
             'd.kode_barang',
             'd.qty',
             'd.harga_jual',
@@ -458,6 +498,7 @@ class ReportController extends Controller
             'b.nama_barang',
             'b.satuan',
             DB::raw($hasQtyTerkirim ? 'COALESCE(d.qty_terkirim, 0) as qty_terkirim' : '0 as qty_terkirim'),
+            DB::raw($hasSalesId ? "COALESCE(s.nama_sales, '') as nama_sales" : "'' as nama_sales"),
         ];
 
         if ($hasCustomerId) {
@@ -491,6 +532,8 @@ class ReportController extends Controller
                 $item->no_invoice,
                 $statusOrder,
                 $item->tgl_transaksi ? Carbon::parse($item->tgl_transaksi)->format('d/m/Y') : '',
+                $item->sales_id ? (int) $item->sales_id : '-',
+                $item->nama_sales ?: '-',
                 $item->kode_barang,
                 $item->nama_barang ?? $item->kode_barang,
                 $item->satuan ?? '',

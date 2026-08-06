@@ -292,12 +292,6 @@
                 </div>
 
             </div>
-
-            {{-- Warning jika ada cicilan dan ubah ke CASH --}}
-            <div id="warn-cicilan" class="mt-3 hidden rounded-lg bg-amber-50 border border-amber-300 px-4 py-3 text-sm text-amber-800">
-                <span class="material-symbols-outlined align-middle text-[18px]">warning</span>
-                <strong>Perhatian:</strong> Transaksi ini memiliki riwayat cicilan piutang. Mengubah ke <strong>CASH</strong> akan menetapkan sisa piutang menjadi Rp 0 (lunas), namun histori cicilan tetap tersimpan.
-            </div>
         </div>
     </section>
 
@@ -877,8 +871,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Data untuk header edit ───────────────────────────────────────────
-    const hasCicilan = {{ ($sale->sisa_piutang !== null && (int)$sale->total_belanja > (int)$sale->sisa_piutang) ? 'true' : 'false' }};
-
     const metaView = document.getElementById('meta-view');
     const metaEdit = document.getElementById('meta-edit');
     const tipeSel  = document.getElementById('edit-tipe-pelanggan');
@@ -887,7 +879,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const fieldCustomer= document.getElementById('field-customer');
     const fieldSales   = document.getElementById('field-sales');
     const fieldTempo   = document.getElementById('field-jatuh-tempo');
-    const warnCicilan  = document.getElementById('warn-cicilan');
 
     // ── Sync hidden form inputs dari panel meta-edit ──────────────────────
     function syncHiddenHeaderFields() {
@@ -945,11 +936,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Metode bayar
         if (fieldTempo) fieldTempo.classList.toggle('hidden', metode !== 'TEMPO');
-
-        // Warning cicilan
-        if (warnCicilan) {
-            warnCicilan.classList.toggle('hidden', !(hasCicilan && metode === 'CASH'));
-        }
 
         // Selalu sync hidden inputs saat UI berubah
         syncHiddenHeaderFields();
