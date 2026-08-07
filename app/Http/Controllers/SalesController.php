@@ -295,6 +295,8 @@ public function printInvoiceEscp(
             'qty.*' => ['required', 'numeric', 'gt:0'],
             'qty_terkirim' => ['required', 'array', 'min:1'],
             'qty_terkirim.*' => ['required', 'numeric', 'gte:0'],
+            'harga_jual' => ['nullable', 'array'],
+            'harga_jual.*' => ['nullable'],
         ]);
 
         // Validasi silang: TEMPO wajib ada jatuh_tempo
@@ -394,6 +396,9 @@ public function printInvoiceEscp(
                 $code = trim((string) $code);
                 $qty = (float) ($validated['qty'][$index] ?? 0);
                 $qtyTerkirim = (float) ($validated['qty_terkirim'][$index] ?? 0);
+                $hargaInput = isset($validated['harga_jual'][$index])
+                    ? $this->cleanSubmittedCurrency($validated['harga_jual'][$index])
+                    : 0;
 
                 if ($code === '' || $qty <= 0) {
                     continue;
@@ -408,6 +413,7 @@ public function printInvoiceEscp(
                 $requestedItems[$code] = [
                     'qty' => $qty,
                     'qty_terkirim' => $qtyTerkirim,
+                    'harga_jual' => $hargaInput,
                 ];
             }
 
@@ -493,23 +499,26 @@ public function printInvoiceEscp(
                 }
 
                 $mainDetail = $oldRows->first();
+                $inputPrice = (int) ($requestedItems[$code]['harga_jual'] ?? 0);
 
-                // Harga item lama dipertahankan. Barang baru memakai harga aktif.
-                $hargaJual = $mainDetail
-                    ? (int) $mainDetail->harga_jual
-                    : (int) $this->resolveSellingPrice(
-                        $code,
-                        (string) $order->tipe_pelanggan,
-                        match ($order->tipe_pelanggan) {
-                            'TOKO' => (int) $order->customer_id,
-                            'SALES' => (int) $order->sales_id,
-                            default => 0,
-                        }
-                    )['harga_jual'];
+                // Gunakan input harga jika diset > 0. Jika tidak, gunakan harga detail lama atau dari master.
+                $hargaJual = $inputPrice > 0
+                    ? $inputPrice
+                    : ($mainDetail
+                        ? (int) $mainDetail->harga_jual
+                        : (int) $this->resolveSellingPrice(
+                            $code,
+                            (string) $order->tipe_pelanggan,
+                            match ($order->tipe_pelanggan) {
+                                'TOKO' => (int) $order->customer_id,
+                                'SALES' => (int) $order->sales_id,
+                                default => 0,
+                            }
+                        )['harga_jual']);
 
                 if ($hargaJual <= 0) {
                     throw ValidationException::withMessages([
-                        'harga_jual' => "Harga jual {$product->nama_barang} belum diset.",
+                        'harga_jual' => "Harga jual {$product->nama_barang} belum diset. Silakan isi harga jual pada form edit.",
                     ]);
                 }
 

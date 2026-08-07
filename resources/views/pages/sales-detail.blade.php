@@ -695,7 +695,17 @@
                                 </td>
 
                                 <td class="px-md py-4 text-right text-on-surface">
-                                    Rp {{ number_format((int) $detail->harga_jual, 0, ',', '.') }}
+                                    <span class="sale-view-value font-medium text-on-surface">
+                                        Rp {{ number_format((int) $detail->harga_jual, 0, ',', '.') }}
+                                    </span>
+
+                                    <input
+                                        type="number"
+                                        name="harga_jual[]"
+                                        value="{{ (int) $detail->harga_jual }}"
+                                        min="0"
+                                        class="sale-edit-control sale-price-input hidden h-9 w-28 rounded-lg border border-outline-variant bg-surface px-2 text-right outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                    >
                                 </td>
 
                                 <td class="sale-subtotal px-md py-4 text-right font-semibold text-on-surface">
@@ -999,6 +1009,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.sale-item-row').forEach(function (row) {
             const qtyInput = row.querySelector('.sale-qty-input');
             const deliveredInput = row.querySelector('.sale-delivered-input');
+            const priceInput = row.querySelector('.sale-price-input');
 
             const qty = Math.max(0, Number(qtyInput?.value || 0));
             let delivered = Math.max(0, Number(deliveredInput?.value || 0));
@@ -1015,7 +1026,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 deliveredInput.max = String(qty);
             }
 
-            const price = Number(row.dataset.price || 0);
+            let price = priceInput ? Number(priceInput.value || 0) : Number(row.dataset.price || 0);
+            row.dataset.price = String(price);
+
             const remaining = Math.max(0, qty - delivered);
             const subtotal = qty * price;
 
@@ -1043,15 +1056,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function bindRow(row) {
         row.querySelector('.sale-qty-input')?.addEventListener('input', recalculate);
         row.querySelector('.sale-delivered-input')?.addEventListener('input', recalculate);
+        row.querySelector('.sale-price-input')?.addEventListener('input', recalculate);
 
         row.querySelector('.remove-sale-row')?.addEventListener('click', function () {
-            const originalDelivered = Number(row.dataset.originalDelivered || 0);
-
-            if (originalDelivered > 0) {
-                alert('Barang sudah pernah dikirim dan tidak dapat dihapus.');
-                return;
-            }
-
             row.remove();
             renumber();
             recalculate();
@@ -1128,29 +1135,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function getProductPrice(code) {
-        const url = new URL(getPriceUrl, window.location.origin);
+        try {
+            const url = new URL(getPriceUrl, window.location.origin);
 
-        url.searchParams.set('kode_barang', code);
-        url.searchParams.set('tipe_pelanggan', customerType || 'USER');
+            url.searchParams.set('kode_barang', code);
+            url.searchParams.set('tipe_pelanggan', customerType || 'USER');
 
-        if (targetId) {
-            url.searchParams.set('target_id', targetId);
-        }
-
-        const response = await fetch(url.toString(), {
-            headers: {
-                Accept: 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+            if (targetId) {
+                url.searchParams.set('target_id', targetId);
             }
-        });
 
-        const payload = await response.json();
+            const response = await fetch(url.toString(), {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
 
-        if (!response.ok || !payload.success) {
-            throw new Error(payload.message || 'Harga barang tidak ditemukan.');
-        }
+            const payload = await response.json();
 
-        return Number(payload.harga_jual || 0);
+            if (response.ok && payload.success) {
+                return Number(payload.harga_jual || 0);
+            }
+        } catch (error) {}
+
+        return 0;
     }
 
     async function addProduct(product) {
@@ -1166,10 +1175,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const price = await getProductPrice(product.kode_barang);
-
-            if (price <= 0) {
-                throw new Error('Harga jual barang belum diset.');
-            }
 
             document.getElementById('empty-sale-row')?.remove();
 
@@ -1195,9 +1200,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td class="px-md py-4 text-right">
                     <input
                         type="number"
+                        step="any"
                         name="qty[]"
                         value="1"
-                        min="1"
+                        min="0.001"
                         class="sale-edit-control sale-qty-input h-9 w-20 rounded-lg border border-outline-variant bg-surface px-2 text-right outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                     >
                 </td>
@@ -1205,6 +1211,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td class="px-md py-4 text-right">
                     <input
                         type="number"
+                        step="any"
                         name="qty_terkirim[]"
                         value="0"
                         min="0"
@@ -1221,7 +1228,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     </span>
                 </td>
 
-                <td class="px-md py-4 text-right">${rupiah(price)}</td>
+                <td class="px-md py-4 text-right">
+                    <span class="sale-view-value hidden font-medium text-on-surface">${rupiah(price)}</span>
+                    <input
+                        type="number"
+                        name="harga_jual[]"
+                        value="${price}"
+                        min="0"
+                        placeholder="Harga..."
+                        class="sale-edit-control sale-price-input h-9 w-28 rounded-lg border border-outline-variant bg-surface px-2 text-right outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    >
+                </td>
 
                 <td class="sale-subtotal px-md py-4 text-right font-semibold">
                     ${rupiah(price)}
@@ -1305,13 +1322,14 @@ document.addEventListener('DOMContentLoaded', function () {
             .some(function (row) {
                 const qty = Number(row.querySelector('.sale-qty-input')?.value || 0);
                 const delivered = Number(row.querySelector('.sale-delivered-input')?.value || 0);
+                const price = Number(row.querySelector('.sale-price-input')?.value || 0);
 
-                return qty < 1 || delivered < 0 || delivered > qty;
+                return qty <= 0 || delivered < 0 || delivered > qty || price <= 0;
             });
 
         if (invalid) {
             event.preventDefault();
-            alert('Periksa kembali Qty Pesanan dan Sudah Terkirim.');
+            alert('Periksa kembali Qty Pesanan, Qty Terkirim, dan pastikan Harga Jual > 0.');
         }
     });
 
