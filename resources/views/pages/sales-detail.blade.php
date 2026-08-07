@@ -1213,14 +1213,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         type="number"
                         step="any"
                         name="qty_terkirim[]"
-                        value="0"
+                        value="1"
                         min="0"
                         max="1"
                         class="sale-edit-control sale-delivered-input h-9 w-20 rounded-lg border border-outline-variant bg-surface px-2 text-right outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                     >
                 </td>
 
-                <td class="sale-remaining px-md py-4 text-right font-semibold text-secondary">1</td>
+                <td class="sale-remaining px-md py-4 text-right font-semibold text-secondary">0</td>
 
                 <td class="px-md py-4 text-center">
                     <span class="rounded-lg bg-surface-container-high px-2 py-1 text-label-sm font-bold uppercase text-on-surface-variant">
