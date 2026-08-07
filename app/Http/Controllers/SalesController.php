@@ -455,6 +455,7 @@ public function printInvoiceEscp(
                 $oldQty       = (float) $oldRows->sum('qty');
                 $oldDelivered = (float) $oldRows->sum('qty_terkirim');
                 $newQty       = (float) ($requestedItems[$code]['qty'] ?? 0);
+                $rawDelivered = $requestedItems[$code]['qty_terkirim'] ?? null;
                 // Qty terkirim mengikuti input manual dari form edit (dibatasi 0 s.d. newQty)
                 $newDelivered = $rawDelivered !== null ? (float) $rawDelivered : 0;
                 $newDelivered = min($newQty, max(0, $newDelivered));
