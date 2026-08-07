@@ -455,15 +455,8 @@ public function printInvoiceEscp(
                 $oldQty       = (float) $oldRows->sum('qty');
                 $oldDelivered = (float) $oldRows->sum('qty_terkirim');
                 $newQty       = (float) ($requestedItems[$code]['qty'] ?? 0);
-                $rawDelivered = $requestedItems[$code]['qty_terkirim'] ?? null;
-
-                // Pertahankan qty_terkirim yang sudah ada jika input bernilai 0/empty tetapi sebelumnya sudah terkirim
-                if ($rawDelivered === null || ((float) $rawDelivered <= 0 && $oldDelivered > 0)) {
-                    $newDelivered = $oldDelivered;
-                } else {
-                    $newDelivered = (float) $rawDelivered;
-                }
-
+                // Qty terkirim mengikuti input manual dari form edit (dibatasi 0 s.d. newQty)
+                $newDelivered = $rawDelivered !== null ? (float) $rawDelivered : 0;
                 $newDelivered = min($newQty, max(0, $newDelivered));
 
                 if ($newQty > 0 && $newDelivered > $newQty) {
@@ -1360,7 +1353,7 @@ public function printInvoiceEscp(
                     'penjualan_id' => $order->id,
                     'kode_barang' => $item['kode_barang'],
                     'qty' => $item['qty'],
-                    'qty_terkirim' => $metodeBayar === 'CASH' ? $item['qty'] : 0,
+                    'qty_terkirim' => 0,
                     'harga_jual' => $item['harga_jual'],
                     'subtotal' => $item['subtotal'],
                     'created_at' => $now,
