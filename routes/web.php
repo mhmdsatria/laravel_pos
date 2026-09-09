@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdjustmentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DataTagihanController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryReportController;
 use App\Http\Controllers\MasterManagementController;
@@ -98,6 +99,17 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/receivables/export-pdf', [ReceivablesController::class, 'exportPdf'])->name('receivables.export_pdf');
     Route::get('/receivables/{id}', [ReceivablesController::class, 'showPiutang'])->whereNumber('id')->name('receivables.show');
     Route::post('/receivables/pay', [ReceivablesController::class, 'storeCicilan'])->name('receivables.store_payment');
+
+    Route::get('/data-tagihan', [DataTagihanController::class, 'index'])->name('data-tagihan.index');
+    Route::get('/data-tagihan/create', [DataTagihanController::class, 'create'])->name('data-tagihan.create');
+    Route::get('/data-tagihan/unpaid-invoices', [DataTagihanController::class, 'getUnpaidInvoices'])->name('data-tagihan.unpaid_invoices');
+    Route::get('/data-tagihan/export-excel', [DataTagihanController::class, 'exportExcel'])->name('data-tagihan.export_excel');
+    Route::post('/data-tagihan', [DataTagihanController::class, 'store'])->name('data-tagihan.store');
+    Route::get('/data-tagihan/{id}', [DataTagihanController::class, 'show'])->whereNumber('id')->name('data-tagihan.show');
+    Route::get('/data-tagihan/{id}/print', [DataTagihanController::class, 'print'])->whereNumber('id')->name('data-tagihan.print');
+    Route::get('/data-tagihan/{id}/settle', [DataTagihanController::class, 'settle'])->whereNumber('id')->name('data-tagihan.settle');
+    Route::post('/data-tagihan/{id}/settle', [DataTagihanController::class, 'processSettlement'])->whereNumber('id')->name('data-tagihan.process_settlement');
+    Route::delete('/data-tagihan/{id}', [DataTagihanController::class, 'destroy'])->whereNumber('id')->name('data-tagihan.destroy');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.export_pdf');

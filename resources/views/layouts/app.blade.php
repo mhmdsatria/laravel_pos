@@ -97,6 +97,7 @@
                     ['label' => 'Transaksi Penjualan', 'icon' => 'receipt_long', 'url' => '/sales', 'patterns' => ['sales*']],
                     ['label' => 'Pembelian / Restock', 'icon' => 'shopping_cart', 'url' => '/purchase', 'patterns' => ['purchase*']],
                     ['label' => 'Piutang', 'icon' => 'account_balance_wallet', 'url' => '/receivables', 'patterns' => ['receivables*']],
+                    ['label' => 'Data Tagihan Sales', 'icon' => 'local_shipping', 'url' => '/data-tagihan', 'patterns' => ['data-tagihan*']],
                 ],
             ],
             [

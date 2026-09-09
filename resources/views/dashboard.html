@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Utama | Toko Bangunan 39</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        apple: {
+                            bg: '#f5f5f7',
+                            card: '#ffffff',
+                            text: '#1d1d1f',
+                            secondary: '#86868b',
+                            blue: '#0071e3',
+                            blueHover: '#0077ed',
+                            green: '#34c759',
+                            red: '#ff3b30',
+                            amber: '#ff9500',
+                            border: 'rgba(0,0,0,0.08)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'apple-sm': '0 2px 8px rgba(0,0,0,0.04)',
+                        'apple-card': '0 4px 20px rgba(0,0,0,0.05)',
+                        'apple-modal': '0 20px 40px rgba(0,0,0,0.15)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Material Symbols Outlined -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <!-- ApexCharts Library -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel-dashboard {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .glass-modal {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-apple-bg text-apple-text antialiased min-h-screen flex flex-col">
+
+<div class="p-4 sm:p-8 space-y-6 flex-1 max-w-7xl mx-auto w-full">
+
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Total Omset Hari Ini -->
+        <div class="bg-white border border-apple-border p-5 rounded-3xl shadow-apple-sm hover:shadow-apple-card transition-all duration-300 group">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-apple-secondary font-medium text-[11px] uppercase tracking-wider">Total Omset Hari Ini</p>
+                <div class="w-8 h-8 rounded-full bg-apple-blue/10 text-apple-blue flex items-center justify-center">
+                    <span class="material-symbols-outlined text-base">payments</span>
+                </div>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-apple-text font-mono">
+                Rp 18.450.000
+            </h3>
+            <p class="text-apple-secondary text-xs pt-1.5 font-normal flex items-center gap-1">
+                <span class="material-symbols-outlined text-apple-green text-sm">trending_up</span>
+                <span class="text-apple-green font-semibold">+14,2%</span> dibanding kemarin
+            </p>
+        </div>
+
+        <!-- Piutang Berjalan -->
+        <div class="bg-white border border-apple-border p-5 rounded-3xl shadow-apple-sm hover:shadow-apple-card transition-all duration-300 group">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-apple-secondary font-medium text-[11px] uppercase tracking-wider">Piutang Berjalan</p>
+                <div class="w-8 h-8 rounded-full bg-apple-amber/10 text-apple-amber flex items-center justify-center">
+                    <span class="material-symbols-outlined text-base">account_balance_wallet</span>
+                </div>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-apple-amber font-mono">
+                Rp 128.500.000
+            </h3>
+            <p class="text-apple-secondary text-xs pt-1.5 font-normal">5 Pelanggan tempo aktif</p>
+        </div>
+
+        <!-- Nota Terbit Hari Ini -->
+        <div class="bg-white border border-apple-border p-5 rounded-3xl shadow-apple-sm hover:shadow-apple-card transition-all duration-300 group">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-apple-secondary font-medium text-[11px] uppercase tracking-wider">Nota Terbit Hari Ini</p>
+                <div class="w-8 h-8 rounded-full bg-apple-blue/10 text-apple-blue flex items-center justify-center">
+                    <span class="material-symbols-outlined text-base">receipt_long</span>
+                </div>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-semibold tracking-tight text-apple-text">
+                34 <span class="text-sm font-normal text-apple-secondary">Nota</span>
+            </h3>
+            <p class="text-apple-secondary text-xs pt-1.5 font-normal">Rata-rata Rp 542rb/nota</p>
+        </div>
+
+        <!-- Pengguna Aktif -->
+        <div class="bg-white border border-apple-border p-5 rounded-3xl shadow-apple-sm hover:shadow-apple-card transition-all duration-300 group">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-apple-secondary font-medium text-[11px] uppercase tracking-wider">Pengguna Aktif</p>
+                <div class="w-8 h-8 rounded-full bg-black/5 text-apple-text flex items-center justify-center">
+                    <span class="material-symbols-outlined text-base">person</span>
+                </div>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-semibold tracking-tight text-apple-text truncate">
+                Kasir Utami
+            </h3>
+            <p class="text-apple-secondary text-xs pt-1.5 font-normal">Role: Kasir Utama (Shift 1)</p>
+        </div>
+
+    </div>
+
+    <!-- Main Content Row: Sales Trend & Sidebar Warnings -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Interactive Sales Chart Widget -->
+        <div class="lg:col-span-2 bg-white border border-apple-border rounded-3xl p-6 shadow-apple-card flex flex-col self-start">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-base font-semibold text-apple-text tracking-tight">Tren Penjualan Toko</h3>
+                    <p class="text-xs text-apple-secondary mt-0.5" id="chart-subhead">Grafik akumulasi pendapatan omset dan volume nota terbit</p>
+                </div>
+                
+                <!-- Apple Segmented Control Switcher -->
+                <div class="bg-black/5 p-1 rounded-full flex items-center text-xs font-medium text-apple-secondary shrink-0 self-start sm:self-auto">
+                    <button type="button" onclick="switchChartFilter('mingguan')" id="btn-chart-mingguan" class="px-4 py-1.5 rounded-full bg-white text-apple-text font-semibold shadow-apple-sm transition-all duration-200 cursor-pointer">
+                        Mingguan
+                    </button>
+                    <button type="button" onclick="switchChartFilter('bulanan')" id="btn-chart-bulanan" class="px-4 py-1.5 rounded-full hover:text-apple-text transition-all duration-200 cursor-pointer">
+                        Bulanan
+                    </button>
+                    <button type="button" onclick="switchChartFilter('harian')" id="btn-chart-harian" class="px-4 py-1.5 rounded-full hover:text-apple-text transition-all duration-200 cursor-pointer">
+                        7 Hari Terakhir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chart Display Canvas Container -->
+            <div class="flex-1 w-full min-h-[320px]" id="sales-line-chart"></div>
+        </div>
+
+        <!-- Sidebar Widgets: Stok Kritis & Transaksi Terbaru -->
+        <div class="space-y-6">
+            
+            <!-- Panel Stok Kritis -->
+            <div class="bg-white border border-apple-border rounded-3xl overflow-hidden shadow-apple-card">
+                <div class="p-5 border-b border-apple-border flex justify-between items-center bg-apple-bg/50">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-apple-red text-lg">warning</span>
+                        <h3 class="text-sm font-semibold text-apple-text">Peringatan Stok Kritis</h3>
+                    </div>
+                    <span class="bg-apple-red/10 text-apple-red text-[10px] font-semibold uppercase px-2.5 py-1 rounded-full">4 Barang</span>
+                </div>
+                
+                <div class="p-5 space-y-3">
+                    <div class="flex justify-between items-center p-3 rounded-2xl bg-apple-bg border border-apple-border hover:bg-black/5 transition-colors">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-xl bg-apple-red/10 text-apple-red flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-base">inventory_2</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-xs font-semibold text-apple-text truncate block">Semen Gresik 50kg</span>
+                                <span class="text-[10px] text-apple-secondary">Limit min: 20 Zak</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-apple-red whitespace-nowrap font-mono pl-2">
+                            5 Zak
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 rounded-2xl bg-apple-bg border border-apple-border hover:bg-black/5 transition-colors">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-xl bg-apple-amber/10 text-apple-amber flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-base">format_paint</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-xs font-semibold text-apple-text truncate block">Cat Dulux Putih 5L</span>
+                                <span class="text-[10px] text-apple-secondary">Limit min: 10 Pail</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-apple-amber whitespace-nowrap font-mono pl-2">
+                            3 Pail
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 rounded-2xl bg-apple-bg border border-apple-border hover:bg-black/5 transition-colors">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-xl bg-apple-red/10 text-apple-red flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-base">hardware</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-xs font-semibold text-apple-text truncate block">Paku Kayu 2 Inch</span>
+                                <span class="text-[10px] text-apple-secondary">Limit min: 15 Dus</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-apple-red whitespace-nowrap font-mono pl-2">
+                            2 Dus
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center p-3 rounded-2xl bg-apple-bg border border-apple-border hover:bg-black/5 transition-colors">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-xl bg-apple-amber/10 text-apple-amber flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-base">architecture</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-xs font-semibold text-apple-text truncate block">Besi Beton 10mm Sni</span>
+                                <span class="text-[10px] text-apple-secondary">Limit min: 50 Batang</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-apple-amber whitespace-nowrap font-mono pl-2">
+                            12 Batang
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-apple-bg/60 border-t border-apple-border text-center">
+                    <button onclick="alert('Navigasi ke Kelola Inventori Stok')" class="text-apple-blue text-xs font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer">
+                        <span>Kelola Inventori &amp; Restok</span>
+                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel Transaksi Terbaru -->
+            <div class="bg-white border border-apple-border rounded-3xl p-5 shadow-apple-card">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-apple-border">
+                    <h3 class="text-sm font-semibold text-apple-text">Transaksi Terbaru</h3>
+                    <span class="text-[11px] text-apple-secondary">Real-time Feed</span>
+                </div>
+
+                <div class="space-y-3.5" id="recent-transactions-container">
+                    <!-- Dynamic Items render by JS -->
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Transaction Detail Modal -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/30 backdrop-blur-md transition-all duration-300" id="trx-detail-modal">
+    <div class="w-full max-w-lg glass-modal rounded-3xl shadow-apple-modal overflow-hidden border border-white/50 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        <div class="px-6 py-4 border-b border-apple-border flex justify-between items-center bg-white/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-apple-blue/10 text-apple-blue flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-xl">receipt_long</span>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold text-apple-text" id="modal-trx-invoice">INV-2026-001</h3>
+                    <p class="text-xs text-apple-secondary font-normal" id="modal-trx-time">Rabu, 3 Sep 2026 • 14:20 WIB</p>
+                </div>
+            </div>
+            <button class="w-8 h-8 flex items-center justify-center bg-black/5 hover:bg-black/10 text-apple-secondary hover:text-apple-text transition-colors rounded-full cursor-pointer" type="button" onclick="closeTrxModal()">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4 text-xs">
+            <div class="grid grid-cols-2 gap-4 bg-apple-bg p-4 rounded-2xl border border-apple-border">
+                <div>
+                    <span class="text-apple-secondary text-[10px] uppercase font-semibold">Pelanggan</span>
+                    <p class="font-medium text-apple-text mt-0.5" id="modal-trx-customer">PT Maju Bangunan</p>
+                </div>
+                <div>
+                    <span class="text-apple-secondary text-[10px] uppercase font-semibold">Status Pembayaran</span>
+                    <p class="mt-0.5" id="modal-trx-status"></p>
+                </div>
+            </div>
+
+            <div>
+                <span class="text-apple-secondary text-[10px] uppercase font-semibold block mb-2">Item Belanja</span>
+                <div class="border border-apple-border rounded-xl overflow-hidden bg-white">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-apple-bg text-[10px] text-apple-secondary font-semibold uppercase">
+                            <tr>
+                                <th class="px-3 py-2">Barang</th>
+                                <th class="px-3 py-2 text-center">Qty</th>
+                                <th class="px-3 py-2 text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-apple-border/50" id="modal-trx-items">
+                            <!-- Items -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-2 border-t border-apple-border">
+                <span class="font-semibold text-apple-secondary">Total Transaksi</span>
+                <span class="text-base font-bold text-apple-text font-mono" id="modal-trx-total">Rp 0</span>
+            </div>
+        </div>
+
+        <div class="px-6 py-3.5 border-t border-apple-border bg-white/40 flex justify-end gap-2">
+            <button class="px-4 py-2 rounded-full border border-apple-border text-apple-text hover:bg-black/5 text-xs font-medium transition-colors cursor-pointer" type="button" onclick="closeTrxModal()">Tutup</button>
+            <button class="px-4 py-2 rounded-full bg-apple-blue hover:bg-apple-blueHover text-white text-xs font-medium transition-colors cursor-pointer shadow-apple-sm flex items-center gap-1.5" type="button" onclick="alert('Mencetak struk/nota...')">
+                <span class="material-symbols-outlined text-sm">print</span>
+                <span>Cetak Struk</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+// Mock Data Transaksi Terbaru
+const recentTransactions = [
+    {
+        invoice: "INV-2026-088",
+        customer: "PT Maju Bangunan",
+        time: "14:20 WIB",
+        status: "Lunas",
+        total: 5450000,
+        items: [
+            { name: "Semen Gresik 50kg", qty: "50 Zak", subtotal: 3500000 },
+            { name: "Besi Beton 10mm SNI", qty: "20 Batang", subtotal: 1950000 }
+        ]
+    },
+    {
+        invoice: "INV-2026-087",
+        customer: "Bpk. Hendra",
+        time: "13:45 WIB",
+        status: "Lunas",
+        total: 1250000,
+        items: [
+            { name: "Cat Dulux Putih 5L", qty: "2 Pail", subtotal: 950000 },
+            { name: "Kuas Cat 3 Inch", qty: "5 Pcs", subtotal: 300000 }
+        ]
+    },
+    {
+        invoice: "INV-2026-086",
+        customer: "CV Sejahtera Mandiri",
+        time: "11:10 WIB",
+        status: "Tempo",
+        total: 8700000,
+        items: [
+            { name: "Triplek 9mm 4x8", qty: "40 Lembar", subtotal: 5200000 },
+            { name: "Paku Kayu 2 Inch", qty: "10 Dus", subtotal: 3500000 }
+        ]
+    },
+    {
+        invoice: "INV-2026-085",
+        customer: "Pelanggan Umum",
+        time: "09:30 WIB",
+        status: "Lunas",
+        total: 480000,
+        items: [
+            { name: "Pipa PVC 3/4 Inch", qty: "6 Batang", subtotal: 360000 },
+            { name: "Lem Pipa PVC", qty: "4 Tube", subtotal: 120000 }
+        ]
+    },
+    {
+        invoice: "INV-2026-084",
+        customer: "Toko Jaya Abadi",
+        time: "08:15 WIB",
+        status: "Tempo",
+        total: 2570000,
+        items: [
+            { name: "Semen Holcim 50kg", qty: "30 Zak", subtotal: 2100000 },
+            { name: "Kawat Bendrat", qty: "10 Kg", subtotal: 470000 }
+        ]
+    }
+];
+
+// Mock Datasets ApexChart
+const chartDatasets = {
+    mingguan: {
+        labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+        omset: [14200000, 16800000, 18450000, 15300000, 21000000, 24500000, 12000000],
+        nota: [28, 31, 34, 29, 38, 42, 22],
+        subhead: "Grafik dinamika harian dalam minggu ini"
+    },
+    bulanan: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep'],
+        omset: [380000000, 420000000, 395000000, 460000000, 510000000, 480000000, 530000000, 560000000, 184500000],
+        nota: [720, 810, 780, 890, 950, 910, 980, 1050, 340],
+        subhead: "Grafik komparasi akumulasi omset bulanan tahun 2026"
+    },
+    harian: {
+        labels: ['28 Agu', '29 Agu', '30 Agu', '31 Agu', '1 Sep', '2 Sep', '3 Sep'],
+        omset: [12500000, 15800000, 13200000, 17400000, 16100000, 16200000, 18450000],
+        nota: [24, 30, 26, 33, 31, 32, 34],
+        subhead: "Grafik performa 7 hari kalender terakhir"
+    }
+};
+
+let apexChartInstance = null;
+
+function formatRupiah(val) {
+    return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
+}
+
+// Render Recent Transactions
+function renderRecentTransactions() {
+    const container = document.getElementById('recent-transactions-container');
+    container.innerHTML = recentTransactions.map((trx, idx) => {
+        const isLunas = trx.status === 'Lunas';
+        return `
+            <div onclick="openTrxModal(${idx})" class="flex items-center justify-between gap-3 pb-3 border-b border-apple-border/60 last:border-0 last:pb-0 cursor-pointer hover:bg-apple-bg/80 p-2 rounded-2xl transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-8 h-8 rounded-full ${isLunas ? 'bg-apple-green/10 text-apple-green' : 'bg-apple-amber/10 text-apple-amber'} flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-base">${isLunas ? 'check_circle' : 'schedule'}</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs font-semibold text-apple-text truncate">${trx.invoice}</p>
+                        <p class="text-[10px] text-apple-secondary truncate">${trx.customer} • ${trx.time}</p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <p class="text-xs font-bold text-apple-text font-mono">${formatRupiah(trx.total)}</p>
+                    <span class="inline-block text-[9px] font-medium px-2 py-0.5 rounded-full ${isLunas ? 'bg-apple-green/10 text-apple-green' : 'bg-apple-amber/10 text-apple-amber'}">
+                        ${trx.status}
+                    </span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Modal Handlers
+const trxModal = document.getElementById('trx-detail-modal');
+
+function openTrxModal(index) {
+    const trx = recentTransactions[index];
+    if (!trx) return;
+
+    document.getElementById('modal-trx-invoice').textContent = trx.invoice;
+    document.getElementById('modal-trx-time').textContent = trx.time;
+    document.getElementById('modal-trx-customer').textContent = trx.customer;
+    document.getElementById('modal-trx-total').textContent = formatRupiah(trx.total);
+
+    const isLunas = trx.status === 'Lunas';
+    document.getElementById('modal-trx-status').innerHTML = `
+        <span class="inline-block text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${isLunas ? 'bg-apple-green/10 text-apple-green' : 'bg-apple-amber/10 text-apple-amber'}">
+            ${trx.status}
+        </span>
+    `;
+
+    document.getElementById('modal-trx-items').innerHTML = trx.items.map(item => `
+        <tr>
+            <td class="px-3 py-2 text-apple-text font-medium">${item.name}</td>
+            <td class="px-3 py-2 text-center text-apple-secondary">${item.qty}</td>
+            <td class="px-3 py-2 text-right font-mono text-apple-text">${formatRupiah(item.subtotal)}</td>
+        </tr>
+    `).join('');
+
+    trxModal.classList.remove('hidden');
+    trxModal.classList.add('flex');
+}
+
+function closeTrxModal() {
+    trxModal.classList.add('hidden');
+    trxModal.classList.remove('flex');
+}
+
+// ApexCharts Initialization and Switcher
+function initSalesChart(filterKey = 'mingguan') {
+    const chartContainer = document.querySelector('#sales-line-chart');
+    if (!chartContainer) return;
+
+    const data = chartDatasets[filterKey];
+    document.getElementById('chart-subhead').textContent = data.subhead;
+
+    const options = {
+        series: [
+            { name: 'Omset (Rp)', data: data.omset },
+            { name: 'Jumlah Nota', data: data.nota }
+        ],
+        chart: {
+            height: 330,
+            type: 'line',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 500
+            }
+        },
+        colors: ['#0071e3', '#ff9500'],
+        stroke: {
+            curve: 'smooth',
+            width: [3, 2.5],
+            dashArray: [0, 4]
+        },
+        markers: {
+            size: [4, 3],
+            colors: ['#0071e3', '#ff9500'],
+            strokeColors: '#ffffff',
+            strokeWidth: 2,
+            hover: { size: 6 }
+        },
+        xaxis: {
+            categories: data.labels,
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            labels: {
+                style: {
+                    colors: '#86868b',
+                    fontSize: '11px'
+                }
+            }
+        },
+        yaxis: [
+            {
+                labels: {
+                    style: { colors: '#86868b', fontSize: '11px' },
+                    formatter: function (val) {
+                        if (val >= 1000000) {
+                            return 'Rp ' + (val / 1000000).toFixed(0) + 'Jt';
+                        }
+                        return 'Rp ' + Number(val).toLocaleString('id-ID');
+                    }
+                }
+            },
+            {
+                opposite: true,
+                labels: {
+                    style: { colors: '#86868b', fontSize: '11px' },
+                    formatter: function (val) {
+                        return Math.round(val) + ' Nota';
+                    }
+                }
+            }
+        ],
+        grid: {
+            borderColor: 'rgba(0, 0, 0, 0.05)',
+            strokeDashArray: 4,
+            padding: { top: 10, right: 10, bottom: 0, left: 10 }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right',
+            fontSize: '12px',
+            itemMargin: { horizontal: 10, vertical: 0 }
+        },
+        tooltip: {
+            theme: 'light',
+            x: { show: true },
+            y: {
+                formatter: function (val, { seriesIndex }) {
+                    if (seriesIndex === 0) {
+                        return formatRupiah(val);
+                    }
+                    return Math.round(val) + ' Nota Terbit';
+                }
+            }
+        }
+    };
+
+    if (apexChartInstance) {
+        apexChartInstance.destroy();
+    }
+
+    apexChartInstance = new ApexCharts(chartContainer, options);
+    apexChartInstance.render();
+}
+
+function switchChartFilter(filterKey) {
+    ['mingguan', 'bulanan', 'harian'].forEach(key => {
+        const btn = document.getElementById('btn-chart-' + key);
+        if (key === filterKey) {
+            btn.className = 'px-4 py-1.5 rounded-full bg-white text-apple-text font-semibold shadow-apple-sm transition-all duration-200 cursor-pointer';
+        } else {
+            btn.className = 'px-4 py-1.5 rounded-full hover:text-apple-text transition-all duration-200 cursor-pointer';
+        }
+    });
+
+    initSalesChart(filterKey);
+}
+
+// Initial Bootstrapping
+window.onload = function() {
+    renderRecentTransactions();
+    initSalesChart('mingguan');
+};
+</script>
+
+</body>
+</html>

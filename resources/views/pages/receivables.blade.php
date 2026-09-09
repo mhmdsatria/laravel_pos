@@ -8,9 +8,7 @@
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-md border-b border-outline-variant/60 pb-md">
         <div>
-            {{-- Berubah menjadi Piutang Penjualan & Warna diubah ke text-primary --}}
             <h2 class="font-headline-xl text-headline-xl text-on-surface uppercase text-primary font-bold tracking-tight">Piutang Pelanggan / Penjualan</h2>
-            {{-- Deskripsi disesuaikan untuk memantau tagihan pelanggan --}}
             <p class="text-xs text-on-surface-variant mt-0.5">Pantau tagihan penjualan, sisa piutang pelanggan, status pembayaran tempo, dan riwayat pelunasan invoice.</p>
         </div>
         
@@ -106,6 +104,7 @@
                         <th class="px-4 py-3">No. Invoice</th>
                         <th class="px-4 py-3">Customer Name</th>
                         <th class="px-4 py-3">Sales Name</th>
+                        <th class="px-4 py-3">Tgl Order</th>
                         <th class="px-4 py-3">Due Date</th>
                         <th class="px-4 py-3 text-center">Remaining Days</th>
                         <th class="px-4 py-3 text-right">Initial Debt</th>
@@ -119,6 +118,7 @@
                     @php
                     $totalPaid = max(0, (int) $item->total_belanja - (int) $item->sisa_piutang);
                     $today = \Illuminate\Support\Carbon::today();
+                    $tglOrderDate = $item->created_at ? \Illuminate\Support\Carbon::parse($item->created_at) : null;
                     $dueDate = $item->jatuh_tempo ? \Illuminate\Support\Carbon::parse($item->jatuh_tempo) : null;
                     $diffDays = $dueDate ? $today->diffInDays($dueDate, false) : null;
                     @endphp
@@ -128,6 +128,8 @@
                         <td class="px-4 py-3.5 font-semibold text-on-surface">{{ $item->nama_pelanggan }}</td>
                         <td class="px-4 py-3.5 text-on-surface-variant">
                             {{ optional($item->sales)->nama_sales ?? '-' }}</td>
+                        <td class="px-4 py-3.5 text-on-surface-variant font-medium">
+                            {{ $tglOrderDate ? $tglOrderDate->translatedFormat('d M Y') : '-' }}</td>
                         <td class="px-4 py-3.5 text-on-surface-variant">
                             {{ $dueDate ? $dueDate->translatedFormat('d M Y') : '-' }}</td>
                         <td class="px-4 py-3.5 text-center">
@@ -164,7 +166,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td class="px-4 py-12 text-center text-on-surface-variant" colspan="9">
+                        <td class="px-4 py-12 text-center text-on-surface-variant" colspan="10">
                             <div class="flex flex-col items-center gap-1.5 opacity-60">
                                 <span class="material-symbols-outlined text-3xl">account_balance_wallet</span>
                                 <p class="text-xs font-medium">{{ ($search ?? '') !== '' ? 'Data piutang tidak ditemukan untuk pencarian tersebut.' : 'Belum ada nota tempo/piutang yang tercatat.' }}</p>
@@ -176,7 +178,7 @@
                 @if($debts->isNotEmpty())
                 <tfoot class="border-t-2 border-outline-variant bg-surface-container-low/60 text-xs font-bold text-on-surface">
                     <tr>
-                        <td colspan="5" class="px-4 py-3.5 text-left font-black uppercase tracking-wider text-on-surface-variant">Total (Sesuai Filter)</td>
+                        <td colspan="6" class="px-4 py-3.5 text-left font-black uppercase tracking-wider text-on-surface-variant">Total (Sesuai Filter)</td>
                         <td class="px-4 py-3.5 text-right font-bold text-on-surface-variant font-mono">
                             Rp {{ number_format($totalFilteredInitial, 0, ',', '.') }}
                         </td>
@@ -287,6 +289,7 @@
                         id="receivable-payment-form" method="POST" action="{{ route('receivables.store_payment') }}">
                         @csrf
                         <input type="hidden" name="penjualan_id" id="payment-penjualan-id" value="" />
+                        <input type="hidden" name="nominal" id="nominal-unformatted-value" value="" />
 
                         <div class="space-y-1">
                             <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider"
@@ -296,7 +299,7 @@
                                     class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-on-surface-variant text-base">Rp</span>
                                 <input
                                     class="w-full pl-12 pr-4 py-2.5 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary/20 focus:border-primary font-black font-mono text-xl bg-white outline-none transition-all"
-                                    id="new-payment-amount" name="nominal" placeholder="0" type="number" min="1"
+                                    id="new-payment-amount" placeholder="0" type="text" inputmode="numeric" autocomplete="off"
                                     required />
                             </div>
                         </div>
@@ -371,6 +374,25 @@
     const paymentForm = document.getElementById('receivable-payment-form');
     const confirmPaymentModal = document.getElementById('confirm-payment-modal');
     const executePaymentSubmit = document.getElementById('execute-payment-submit');
+    const newPaymentInput = document.getElementById('new-payment-amount');
+    const unformattedInput = document.getElementById('nominal-unformatted-value');
+
+    // Format Input Nominal Rupiah Otomatis saat diketik (20.000 / 3.000)
+    function formatThousands(val) {
+        const clean = val.replace(/[^0-9]/g, '');
+        if (!clean) return '';
+        return parseInt(clean, 10).toLocaleString('id-ID');
+    }
+
+    if (newPaymentInput) {
+        newPaymentInput.addEventListener('input', function() {
+            const cleanVal = this.value.replace(/[^0-9]/g, '');
+            this.value = formatThousands(cleanVal);
+            if (unformattedInput) {
+                unformattedInput.value = cleanVal;
+            }
+        });
+    }
 
     function rupiah(value) {
         const numericValue = Number(value || 0);
@@ -396,6 +418,7 @@
             '<tr><td class="px-3 py-8 text-center text-on-surface-variant opacity-60" colspan="4">Memuat riwayat pembayaran...</td></tr>';
         document.getElementById('payment-penjualan-id').value = id;
         document.getElementById('new-payment-amount').value = '';
+        if (unformattedInput) unformattedInput.value = '';
 
         fetch('/receivables/' + id, {
                 headers: {
@@ -462,7 +485,11 @@
 
     paymentForm.addEventListener('submit', function(event) {
         event.preventDefault();
-        const amount = Number(document.getElementById('new-payment-amount').value || 0);
+        
+        const rawValue = newPaymentInput ? newPaymentInput.value.replace(/[^0-9]/g, '') : '';
+        if (unformattedInput) unformattedInput.value = rawValue;
+        
+        const amount = Number(rawValue || 0);
         const remaining = Number(activeReceivableData ? activeReceivableData.sisa_piutang : 0);
 
         if (!activeReceivableData) {
